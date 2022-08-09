@@ -151,6 +151,7 @@ function getParameterByName(name, url) {
 function generateEquation() {
     var isOneStep = getParameterByName("oneStep") != null;
     var skipMultiply = getParameterByName("skipMultiply") != null;
+    var onlyMultiply = getParameterByName("onlyMultiply") != null;
     var lhs, rhs;
     if(!isOneStep) {
         var rhc_int;
@@ -197,11 +198,17 @@ function generateEquation() {
         do {
             realX = getRandomInt(-3, 10);
         } while(realX == 0);
-        var operationFnNames = [ "add", "subtract" ];
-        if(!skipMultiply)
-            operationFnNames.push("multiply");
-        var operationMode = getRandomInt(1, skipMultiply ? 2 : 3);
-        var secondNum = (operationMode==3) ? getRandomInt(1, 5) : getRandomInt(1, 20);
+        /* TODO: rewrite the parameter logic to be cleaner */
+        var operationFnNames = [ "add", "subtract", "multiply" ];
+        var operationMode;
+        if(onlyMultiply) {
+            /* force multiplication */
+            operationMode = 3;
+        } else {
+            /* choose a random one from the list, skip multiplication if requested */
+            operationMode = getRandomInt(1, skipMultiply ? 2 : 3);
+        }
+        var secondNum = (operationMode==3) ? getRandomInt(2, 5) : getRandomInt(1, 20);
         lhs = new Expression("x")[operationFnNames[operationMode-1]](secondNum);
         var otherNum = lhs.eval({ x: realX });
         rhs = new Expression(otherNum.constant().valueOf());
